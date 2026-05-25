@@ -1,0 +1,90 @@
+# ===================================================================
+# Formation LangChain 100% Locale - requirements.txt
+# Stack: LangChain 1.x + Ollama + HuggingFace + ChromaDB + Streamlit
+# ===================================================================
+# Strategie de pinning DEUX-NIVEAUX (standard industrie) :
+#
+#   NIVEAU 1 - requirements.txt (CE FICHIER) : ranges semantiques
+#   --------------------------------------------------------------
+#   On declare l'INTENTION : bornes basses pour empecher les regressions
+#   d'API, bornes hautes (majeures) pour bloquer les v2 cassantes.
+#   pip resoud LA bonne combinaison de versions => evite les conflits
+#   entre paquets (ex: langchain 1.0.0 exige langgraph<1.1.0, donc
+#   on ne peut pas pinner a la main les deux planchers).
+#
+#   NIVEAU 2 - requirements.lock.txt : versions exactes
+#   --------------------------------------------------------------
+#   Genere par : bash infrastructure/lock.sh
+#   Contient TOUTES les versions exactes (deps directes + transitives :
+#   numpy, torch, transformers, etc.). C'est CE fichier qui garantit
+#   la reproductibilite parfaite entre apprenants.
+#   Le Dockerfile l'utilise en priorite si present.
+#
+# WORKFLOW pour mettre a jour la stack :
+#   1. Ajuster les ranges ci-dessous (et eventuellement bumper une borne)
+#   2. Supprimer requirements.lock.txt
+#   3. docker compose up -d --build  (pip resoud + installe)
+#   4. Verifier que tout marche (postCreateCommand, smoke tests)
+#   5. bash infrastructure/lock.sh  (capture le nouveau lock)
+#   6. git commit requirements.txt + requirements.lock.txt
+# ===================================================================
+
+
+# --- LangChain Core (meta-package + briques fondamentales) ---
+langchain>=1.0.0,<2.0.0
+langchain-core>=1.3.0,<2.0.0
+langchain-classic>=1.0.0,<2.0.0
+langchain-community>=0.4.0,<1.0.0
+langchain-text-splitters>=1.1.0,<2.0.0
+
+
+# --- Integrations LLM / Embeddings / VectorStore (LOCALES uniquement) ---
+# Aucune dependance OpenAI / Anthropic / Google : stack 100% locale
+langchain-ollama>=0.3.0,<1.0.0
+langchain-huggingface>=1.2.0,<2.0.0
+langchain-chroma>=1.1.0,<2.0.0
+
+
+# --- Workflows et Agents (Jour 2 - Module 7) ---
+langgraph>=1.1.0,<2.0.0
+langgraph-prebuilt>=1.0.0,<2.0.0
+
+
+# --- Base vectorielle & moteur d'embeddings ---
+chromadb>=1.3.5,<2.0.0
+sentence-transformers>=3.0.0,<5.0.0
+
+
+# --- Loaders de documents (Jour 1 - Module 5) ---
+# pypdf : PDF natifs (textes selectionnables)
+# unstructured : fallback robuste pour PDFs scannes + Markdown
+pypdf>=4.0.0,<6.0.0
+unstructured[md]>=0.15.0,<1.0.0
+markdown>=3.6,<4.0
+
+
+# --- Validation & sortie structuree (Jour 2 - Module 8) ---
+# Pydantic v2 OBLIGATOIRE en LangChain 1.x
+pydantic>=2.7.0,<3.0.0
+
+
+# --- Interface utilisateur (Jour 2 - Module 9) ---
+streamlit>=1.38.0,<2.0.0
+
+
+# --- Notebook Jupyter ---
+jupyter>=1.0.0
+ipykernel>=6.29.0
+ipywidgets>=8.1.0
+
+
+# --- Utilitaires ---
+# python-dotenv : gestion propre des variables d'environnement
+# httpx : pour les health-checks (deja dependance transitive de langchain-ollama)
+python-dotenv>=1.0.0,<2.0.0
+httpx>=0.27.0
+
+
+# --- Outils de qualite de code (optionnels mais recommandes) ---
+# ruff : linter + formateur ultra-rapide, remplace black + isort + flake8
+ruff>=0.6.0

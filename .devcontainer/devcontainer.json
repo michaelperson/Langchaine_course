@@ -1,0 +1,59 @@
+{
+  "name": "LangChain Formation - Stack 100% Locale",
+  // --- Source du container : on s'appuie sur docker-compose ---
+  "dockerComposeFile": "../infrastructure/docker-compose.yml",
+  "service": "langchain-app",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "root",
+  // --- Configuration VS Code ---
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Python tooling
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        // Jupyter Notebooks
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-renderers",
+        "ms-toolsai.jupyter-keymap",
+        // Linter / formateur ultra-rapide (remplace black + isort + flake8)
+        "charliermarsh.ruff",
+        // YAML support (pour docker-compose, config)
+        "redhat.vscode-yaml",
+        // Verificateur orthographique (utile pour les Markdown de formation)
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        // Forcer Python du container (evite les fausses suggestions d'env locaux)
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.terminal.activateEnvironment": false,
+        // Notebook par defaut a la racine du workspace
+        "jupyter.notebookFileRoot": "${workspaceFolder}",
+        // Format on save avec Ruff
+        "editor.formatOnSave": true,
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        }
+      }
+    }
+  },
+  // --- Ports auto-forwardes vers l'hote ---
+  "forwardPorts": [
+    8501,
+    8000
+  ],
+  "portsAttributes": {
+    "8501": {
+      "label": "Streamlit App (Module 9)",
+      "onAutoForward": "notify"
+    },
+    "8000": {
+      "label": "ChromaDB Server (optionnel)",
+      "onAutoForward": "silent"
+    }
+  },
+  // --- Variables d'environnement transmises a VS Code et au shell ---
+  "remoteEnv": {
+    "OLLAMA_BASE_URL": "http://host.docker.internal:11434"
+  }
+}
